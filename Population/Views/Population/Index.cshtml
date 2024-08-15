@@ -1,0 +1,68 @@
+﻿@{
+	ViewData["Title"] = "Population List";
+}
+<div class="text-center">
+	<div class="row">
+		<div class="form-group col-6">
+			<div class="input-group">
+				<label class="col-form-label col-2 text-right">Entity</label>
+				<div class="dropdown">
+					<select class="form-select" id="ddlPais">
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<table class="table table-hover table-sm" id="tblPopulation">
+		<thead class="thead-dark">
+			<tr>
+				<th scope="col" class="col-1">#</th>
+				<th scope="col" class="col-4">Code</th>
+				<th scope="col" class="col-2">Entity</th>
+				<th scope="col" class="col-2">Year</th>
+				<th scope="col" class="col-2">Population</th>
+			</tr>
+		</thead>
+		<tbody>
+			
+		</tbody>
+	</table>
+</div>
+
+@section Scripts {
+	<script>
+		$(document).ready(function () {
+			var ddlPais = $('#ddlPais');
+			var table = $('#tblPopulation tbody')
+
+			$.ajax({
+				type: "POST",
+				url: "/Population/CodesList",
+				success: function (result) {
+					ddlPais.empty();
+					ddlPais.append("<option>Select</option>")
+					$(result).each(function (index, element) {
+						ddlPais.append("<option value=" + element.item1 + ">" + element.item2 + "</option>");
+					})
+				}
+			});
+
+			ddlPais.change(function () {
+				$.ajax({
+					type: "POST",
+					url: "/Population/Filter",
+					data: { code: ddlPais.val(), entity: $("#ddlPais option:selected").text() },
+					success: function(result) {
+						table.empty();
+						var counter = 1;
+						$(result).each(function (index, element) {
+							table.append("<tr><td>" + counter + "</td><td>" + element.code + "</td><td>" + element.entity + "</td><td>" + element.year + "</td><td>" + element.population + "</td></tr>");
+							counter++;
+						})
+					}
+				});
+			});
+		});
+	</script>
+}
